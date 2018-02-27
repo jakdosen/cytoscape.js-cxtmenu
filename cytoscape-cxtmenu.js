@@ -28,15 +28,14 @@
     selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
     commands: [ // an array of commands to list in the menu or a function that returns the array
       /*
-      { // example command
-        fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
-        content: 'a command name' // html/text content to be displayed in the menu
-        select: function(ele){ // a function to execute when the command is selected
-          console.log( ele.id() ) // `ele` holds the reference to the active element
-        },
-        enabled: true // whether the command is selectable
-      }
-      */
+       { // example command
+       fillColor: 'rgba(200, 200, 200, 0.75)', // optional: custom background color for item
+       content: 'a command name' // html/text content to be displayed in the menu
+       select: function(ele){ // a function to execute when the command is selected
+       console.log( ele.id() ) // `ele` holds the reference to the active element
+       }
+       }
+       */
     ], // function( ele ){ return [ /*...*/ ] }, // example function for commands
     fillColor: 'rgba(0, 0, 0, 0.75)', // the background colour of the menu
     activeFillColor: 'rgba(92, 194, 237, 0.75)', // the colour used to indicate the selected command
@@ -111,10 +110,6 @@
     return el;
   };
 
-  var getPixelRatio = function(){
-    return window.devicePixelRatio || 1;
-  };
-
   // registers the extension on a cytoscape lib ref
   var register = function (cytoscape) {
     if (!cytoscape) {
@@ -122,6 +117,7 @@
     } // can't register if cytoscape unspecified
 
     cytoscape('core', 'cxtmenu', function (params) {
+
       var options = Object.assign({}, defaults, params);
       var fn = params;
       var cy = this;
@@ -223,7 +219,7 @@
             'display': 'table-cell'
           });
 
-          if (command.disabled === true || command.enabled === false) {
+          if (command.disabled) {
             content.classList.add('cxtmenu-disabled');
           }
 
@@ -689,16 +685,15 @@
 
             .on('tapdrag', dragHandler)
 
-            .on('cxttapend tapend', options.selector, function (e) {
-              console.log("cxttapend tapend");
-              var ele = this, commands = options.commands, subCommands, select;
+            .on('cxttapend tapend',  function (e) {
+              var commands = options.commands, subCommands, select;
               parent.style.display = 'none';
               if (activeCommandI[0] !== undefined) {
                 subCommands = commands[activeCommandI[0]]["subCommands"];
                 select = activeCommandI[1] !== undefined && subCommands ? subCommands[activeCommandI[1]].select : commands[activeCommandI[0]].select;
 
                 if (select) {
-                  select.apply(ele, [ele, gestureStartEvent]);
+                  select.apply(target, [target, gestureStartEvent]);
                   activeCommandI = [];
                 }
               }
@@ -708,19 +703,7 @@
               restoreGrab();
               restoreZoom();
               restorePan();
-            })
-
-            .on('cxttapend tapend', function (e) {
-              console.log("cxttapend tapend2");
-              parent.style.display = 'none';
-
-              inGesture = false;
-
-              restoreGrab();
-              restoreZoom();
-              restorePan();
-            })
-        ;
+            });
       }
 
       function removeEventListeners() {
